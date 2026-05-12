@@ -10,7 +10,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 
 import de.jangassen.MenuToolkit;
-import io.github.qishr.cascara.ui.platform.SystemMenusService;
+import io.github.qishr.cascara.ui.menu.SystemMenusService;
 
 public class MacosSystemMenus implements SystemMenusService {
     MenuToolkit tk;
@@ -43,7 +43,6 @@ public class MacosSystemMenus implements SystemMenusService {
     @Override
     public void integrate(Stage stage, MenuBar menuBar, Menu appMenu) {
         tk.setMenuBar(stage, menuBar);
-        // Set the application menu to the custom app menu directly
         tk.setApplicationMenu(appMenu);
     }
 
@@ -67,7 +66,7 @@ public class MacosSystemMenus implements SystemMenusService {
 
         SeparatorMenuItem windowGroupSep = new SeparatorMenuItem();
 
-        MenuItem hideCascara = tk.createHideMenuItem(appName);
+        MenuItem hideApp = tk.createHideMenuItem(appName);
         MenuItem hideOthers = tk.createHideOthersMenuItem();
         MenuItem showAll = tk.createUnhideAllMenuItem();
 
@@ -83,10 +82,9 @@ public class MacosSystemMenus implements SystemMenusService {
 
             settingsGroupSep,
             settingsItem,
-            // new Menu("App Submenu"),
 
             windowGroupSep,
-            hideCascara,
+            hideApp,
             hideOthers,
             showAll,
 
