@@ -1,6 +1,3 @@
-
-
-
 plugins {
     id "io.github.qishr.cascara-meta.java-library" version "0.1.0"
     id "io.github.qishr.cascara-meta.publish" version "0.1.0"
