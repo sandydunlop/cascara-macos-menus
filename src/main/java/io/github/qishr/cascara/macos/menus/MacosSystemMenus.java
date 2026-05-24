@@ -47,6 +47,7 @@ public class MacosSystemMenus implements SystemMenusService {
     }
 
 
+    /// Builds the application menu for the macOS menu bar.
     @Override
     public Menu buildAppMenu() {
         Menu appMenu = new Menu(appName);

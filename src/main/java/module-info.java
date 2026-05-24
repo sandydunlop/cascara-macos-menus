@@ -6,6 +6,8 @@ module cascara.macos.menus {
     requires nsmenufx;
     requires cascara.ui;
 
+    exports io.github.qishr.cascara.macos.menus;
+
     provides io.github.qishr.cascara.ui.menu.SystemMenusService
         with io.github.qishr.cascara.macos.menus.MacosSystemMenus;
 
