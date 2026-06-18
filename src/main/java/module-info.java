@@ -4,7 +4,8 @@ module cascara.macos.menus {
     requires transitive javafx.graphics;
 
     requires nsmenufx;
-    requires cascara.ui;
+    requires transitive cascara.ui;
+    requires transitive cascara.common;
 
     exports io.github.qishr.cascara.macos.menus;
 
