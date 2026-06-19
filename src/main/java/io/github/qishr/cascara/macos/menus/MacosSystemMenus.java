@@ -1,115 +1,124 @@
 package io.github.qishr.cascara.macos.menus;
 
 import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 
 import de.jangassen.MenuToolkit;
+import io.github.qishr.cascara.common.service.ServiceProvider;
+import io.github.qishr.cascara.common.util.Properties;
+import io.github.qishr.cascara.ui.menu.ObservableMenuFactory;
+import io.github.qishr.cascara.ui.menu.ObservableMenuItem;
 import io.github.qishr.cascara.ui.menu.SystemMenusService;
 
-public class MacosSystemMenus implements SystemMenusService {
-    MenuToolkit tk;
-    String appName;
+public class MacosSystemMenus implements SystemMenusService, ServiceProvider {
+    private MenuToolkit tk;
+    private Properties capabilities;
+    private ObservableMenuItem menuRoot;
+    private ObservableMenuItem appMenu;
 
-    MenuOptionHandler onAbout = null;
-    public void setOnAbout(MenuOptionHandler handler) {this.onAbout = handler;}
-    public void onAbout(MenuItem i) {if (onAbout != null) {onAbout.onMenuOption(i);}}
+    Runnable onAbout = null;
+    public void setOnAbout(Runnable handler) {this.onAbout = handler;}
+    public void onAbout() {if (onAbout != null) {onAbout.run();}}
 
-    MenuOptionHandler onSettings = null;
-    public void setOnSettings(MenuOptionHandler handler) {this.onSettings = handler;}
-    public void onSettings(MenuItem i) {if (onSettings != null) {onSettings.onMenuOption(i);}}
+    Runnable onSettings = null;
+    public void setOnSettings(Runnable handler) {this.onSettings = handler;}
+    public void onSettings() {if (onSettings != null) {onSettings.run();}}
 
-    MenuOptionHandler onQuit = null;
-    public void setOnQuit(MenuOptionHandler handler) {this.onQuit = handler;}
-    public void onQuit(MenuItem i) {if (onQuit != null) {onQuit.onMenuOption(i);}}
+    Runnable onQuit = null;
+    public void setOnQuit(Runnable handler) {this.onQuit = handler;}
+    public void onQuit() {if (onQuit != null) {onQuit.run();}}
 
 
     public MacosSystemMenus() {
         tk = MenuToolkit.toolkit();
     }
 
-
     @Override
-    public void setAppName(String appName) {
-        this.appName = appName;
+    public Properties getServiceProperties() {
+        if (capabilities == null) {
+            capabilities = new Properties();
+            capabilities.set("platform", "macOS");
+        }
+        return capabilities;
     }
 
-
     @Override
-    public void integrate(Stage stage, MenuBar menuBar, Menu appMenu) {
-        tk.setMenuBar(stage, menuBar);
-        tk.setApplicationMenu(appMenu);
+    public void setMenuRoot(ObservableMenuItem menuRoot) {
+        this.menuRoot = menuRoot;
     }
 
+    @Override
+    public void integrate(Stage stage) {
+        tk.setMenuBar(stage, menuRoot.getMenuBar());
+        tk.setApplicationMenu((Menu)appMenu.getMenuItem());
+    }
 
     /// Builds the application menu for the macOS menu bar.
     @Override
-    public Menu buildAppMenu() {
-        Menu appMenu = new Menu(appName);
+    public ObservableMenuItem buildAppMenu(String appName) {
+        appMenu = menuRoot.addMenu("app", appName);
 
-        MenuItem aboutItem = new MenuItem("About...");
-        aboutItem.setOnAction(event -> {
-            onAbout(aboutItem);
-        });
+        appMenu.addMenuItem("about", "About...")
+            .setOnChoose(() -> onAbout());
 
-        SeparatorMenuItem settingsGroupSep = new SeparatorMenuItem();
+        appMenu.addSeparator();
 
-        MenuItem settingsItem = new MenuItem("Settings...");
-        settingsItem.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.META_DOWN));
-        settingsItem.setOnAction(event -> {
-            onSettings(settingsItem);
-        });
+        appMenu.addMenuItem("settings", "Settings...")
+            .setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.META_DOWN))
+            .setOnChoose(() -> onSettings());
 
-        SeparatorMenuItem windowGroupSep = new SeparatorMenuItem();
+        appMenu.addSeparator();
 
-        MenuItem hideApp = tk.createHideMenuItem(appName);
-        MenuItem hideOthers = tk.createHideOthersMenuItem();
-        MenuItem showAll = tk.createUnhideAllMenuItem();
-
-        SeparatorMenuItem quitGroupSep = new SeparatorMenuItem();
-
-        MenuItem quitItem = tk.createQuitMenuItem(appName);
-        quitItem.setOnAction(event -> {
-            onQuit(quitItem);
-        });
-
-        appMenu.getItems().addAll(
-            aboutItem,
-
-            settingsGroupSep,
-            settingsItem,
-
-            windowGroupSep,
-            hideApp,
-            hideOthers,
-            showAll,
-
-            quitGroupSep,
-            quitItem
+        appMenu.addMenuItem(
+            "hide-app", "Hide App",
+            tk.createHideMenuItem(appName)
         );
+
+        appMenu.addMenuItem(
+            "hide-others", "Hide Others",
+            tk.createHideOthersMenuItem()
+        );
+
+        appMenu.addMenuItem(
+            "show-all", "Show All",
+            tk.createUnhideAllMenuItem()
+        );
+
+        appMenu.addSeparator();
+
+        appMenu.addMenuItem(
+            "quit", "Quit",
+            tk.createQuitMenuItem(appName)
+        ).setOnChoose(() -> onQuit());
 
         return appMenu;
     }
 
     @Override
-    public Menu buildWindowMenu() {
-        Menu windowMenu = new Menu("Window");
+    public ObservableMenuItem buildWindowMenu() {
+        ObservableMenuItem windowMenu = ObservableMenuFactory.createMenu("window", "Window");
 
-        MenuItem minimize = tk.createMinimizeMenuItem();
-        MenuItem zoom = tk.createZoomMenuItem();
+        ObservableMenuItem minimize = ObservableMenuFactory.createMenuItem(
+            "minimize", "Minimize",
+            tk.createMinimizeMenuItem()
+        );
 
-        SeparatorMenuItem separator = new SeparatorMenuItem();
+        ObservableMenuItem zoom = ObservableMenuFactory.createMenuItem(
+            "zoom", "Zoom",
+            tk.createZoomMenuItem()
+        );
 
-        MenuItem bringAllToFront = tk.createBringAllToFrontItem();
+        ObservableMenuItem bringAllToFront = ObservableMenuFactory.createMenuItem(
+            "bring-all-to-front", "Bring All To Fron",
+            tk.createBringAllToFrontItem()
+        );
 
-        windowMenu.getItems().addAll(minimize, zoom, separator, bringAllToFront);
-
-        tk.autoAddWindowMenuItems(windowMenu);
+        windowMenu.getChildren().addAll(
+            minimize, zoom, ObservableMenuItem.SEPARATOR, bringAllToFront
+        );
 
         return windowMenu;
     }
