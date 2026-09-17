@@ -13,11 +13,12 @@ repositories {
 
 
 dependencies {
-    implementation(platform("io.github.qishr:cascara-meta-bom:0.1.10"))
+    implementation(platform("io.github.qishr:cascara-meta-bom:$cascara_version"))
 
     // Cascara Dependencies
     implementation "io.github.qishr:cascara-common"
     implementation "io.github.qishr:cascara-common-io"
+    implementation "io.github.qishr:cascara-format-vsix"
     implementation "io.github.qishr:cascara-lang-yaml"
     implementation "io.github.qishr:cascara-schema"
     implementation "io.github.qishr:cascara-ui"
